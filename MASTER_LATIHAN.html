@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ujian Mandiri Hukum UT</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{--blue:#1e40af;--dark:#111827;--soft:#e0f2fe;--gold:#b8860b;--yellow:#ffff00;--red:#ff0000;--line:#c7d2fe}
+*{box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f0f9ff;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:12px}
+.quiz-container{background:#fff;padding:1.2rem 2rem;border-radius:12px;box-shadow:0 8px 25px rgba(30,64,175,.15);width:100%;max-width:560px;border:4px solid var(--blue)}
+h1{color:var(--blue);text-align:center;font-size:1.2rem;margin:0 0 12px;border-bottom:2px double var(--gold);padding-bottom:6px}
+h2{font-size:1.05rem;color:var(--blue);margin:0 0 6px}
+p{line-height:1.5;margin:0 0 8px;font-size:.85rem;color:#1f2937}
+.hidden{display:none!important}
+button,.btn{padding:9px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;cursor:pointer;font-size:.85rem;text-align:left;font-family:inherit;display:inline-block;color:var(--dark)}
+button:focus-visible,.btn:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
+.primary{background:var(--blue);color:#fff;border:none;font-weight:bold;text-align:center;width:100%;padding:11px;font-size:.9rem;margin-top:8px}
+.primary:disabled{background:#94a3b8;cursor:not-allowed}
+.green{background:#16a34a;color:#fff;border:none;font-weight:bold;text-align:center;width:100%;padding:11px}
+.quote{background:var(--soft);border-left:4px solid var(--gold);padding:10px 12px;border-radius:4px;margin:10px 0;font-size:.85rem;line-height:1.55;white-space:pre-line}
+.step{display:flex;gap:10px;margin:10px 0;align-items:flex-start}
+.num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-weight:bold;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+.step>div{flex:1;min-width:0}
+.step b{font-size:.88rem;color:var(--dark)}
+.drop{display:block;border:2px dashed var(--blue);background:rgba(224,242,254,.7);padding:12px;text-align:center;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;margin-top:6px}
+.drop input{display:none}
+.drop:focus-within{outline:3px solid var(--gold)}
+.status{font-size:.8rem;margin-top:6px;font-weight:600}
+.ok{color:#166534}.err{color:#991b1b}
+input[type=text],textarea{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:.85rem;margin-top:5px}
+textarea{min-height:80px;resize:vertical}
+.row{display:flex;gap:6px}
+.row input{margin-top:5px}
+.row button{margin-top:5px;white-space:nowrap}
+.mat{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;margin-top:5px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:.8rem}
+.mat span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mat a,.mat button{padding:4px 8px;font-size:.78rem;color:var(--blue)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{background:var(--blue);color:#fff;border-radius:50px;padding:3px 12px;font-size:.78rem;font-weight:600}
+.small{font-size:.75rem;color:#64748b}
+#progress{color:var(--gold);font-weight:bold;font-size:.8rem;margin-bottom:5px}
+.question{font-size:.95rem;margin-bottom:1rem;font-weight:700;color:var(--dark);line-height:1.4}
+.options{display:flex;flex-direction:column;gap:6px}
+.correct-highlight{background:var(--yellow)!important;color:#000!important;font-weight:bold;border:2px solid #d4d400!important}
+.incorrect-highlight{background:var(--red)!important;color:#fff!important;font-weight:bold;border:2px solid #b30000!important}
+.explanation{margin-top:10px;padding:8px;background:#fff9db;border-left:4px solid var(--blue);font-size:.8rem;border-radius:4px}
+.bold-score{font-size:4.5rem;font-weight:900;color:var(--blue);margin:2px 0;line-height:1;text-shadow:2px 2px 0 var(--gold)}
+.keterangan{font-size:1rem;padding:6px 20px;border-radius:50px;margin-bottom:8px;color:#fff;display:inline-block;font-weight:bold}
+.pintar{background:#166534}.sedang{background:#ca8a04}.bodoh{background:#991b1b}
+.percent-info{display:block;font-size:.75rem;font-weight:normal;opacity:.9}
+.motivasi-lucu{font-size:.85rem;color:#444;line-height:1.4;margin:10px 0;font-style:italic;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid #e2e8f0}
+@media(max-width:480px){.quiz-container{padding:1rem 1.1rem}.bold-score{font-size:3.5rem}h1{font-size:1.05rem}}
+</style>
+</head>
+<body>
+<div class="quiz-container">
+<h1>Ujian Mandiri Mahasiswa UT Prodi Hukum</h1>
+
+<!-- 1. NARASI PEMBUKA -->
+<section id="intro" class="screen">
+  <h2>Selamat datang, belajar mandiri dimulai di sini</h2>
+  <div class="quote">Kuliah di Universitas Terbuka berarti kamu yang mengatur waktu, ritme, dan cara belajarmu sendiri.
+Latihan ini membantumu mengecek seberapa jauh materi hukum sudah kamu pahami, tanpa tekanan dan tanpa batas waktu.
+Setiap soal disertai pembahasan. Kalau jawabanmu keliru, itu bukan kegagalan, itu petunjuk bagian modul mana yang perlu dibaca ulang.</div>
+  <p><b>Cara memakainya:</b></p>
+  <div class="step"><span class="num">1</span><div><b>Unduh template Excel</b><p>Isi soal, pilihan jawaban, kunci, dan pembahasan.</p></div></div>
+  <div class="step"><span class="num">2</span><div><b>Unggah soal dan materi tema</b><p>Materi bisa berupa PDF, tautan, atau berkas lain sebagai bahan bacaan.</p></div></div>
+  <div class="step"><span class="num">3</span><div><b>Baca narasi tema, lalu kerjakan</b><p>Pelajari materinya dulu, kemudian mulai ujian.</p></div></div>
+  <button class="primary" onclick="show('setup')">Mulai menyiapkan latihan</button>
+</section>
+
+<!-- 2. UNDUH & UNGGAH -->
+<section id="setup" class="screen hidden">
+  <h2>Siapkan latihan</h2>
+  <div class="step"><span class="num">1</span><div><b>Unduh template Excel</b>
+    <p>Berisi sheet <i>Soal</i>, <i>Tema</i>, dan <i>Petunjuk</i> lengkap dengan contoh pengisian.</p>
+    <button class="green btn" onclick="downloadTemplate()">⬇ Unduh template (.xlsx)</button></div></div>
+  <div class="step"><span class="num">2</span><div><b>Unggah Excel yang sudah diisi</b>
+    <label class="drop">📄 Pilih berkas .xlsx / .xls<input type="file" id="fileUploader" accept=".xlsx,.xls"></label>
+    <div id="soal-status" class="status"></div></div></div>
+  <div class="step"><span class="num">3</span><div><b>Tema ujian <span class="small">(opsional)</span></b>
+    <input type="text" id="tema-judul" placeholder="Judul tema, mis. Hukum Pidana: Asas Legalitas">
+    <textarea id="tema-narasi" placeholder="Narasi pengantar: tuliskan gambaran materi dan hal yang perlu dipelajari sebelum ujian."></textarea>
+    <p class="small" style="margin-top:6px">Materi referensi: tautan atau berkas (PDF, Word, PowerPoint, gambar; maks. 4 MB per berkas).</p>
+    <div class="row"><input type="text" id="link-input" placeholder="https://contoh.com/materi"><button onclick="addLink()">+ Tautan</button></div>
+    <label class="drop">📎 Tambah berkas materi<input type="file" id="matUploader" accept=".pdf,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg,.txt" multiple></label>
+    <div id="mat-list"></div><div id="mat-status" class="status"></div></div></div>
+  <button class="primary" id="to-brief" disabled onclick="toBrief()">Lihat narasi ujian</button>
+  <button style="margin-top:8px;width:100%;text-align:center" onclick="show('intro')">← Kembali</button>
+</section>
+
+<!-- 3. NARASI SEBELUM UJIAN -->
+<section id="brief" class="screen hidden">
+  <h2 id="b-judul"></h2>
+  <div class="chips"><span class="chip" id="b-jumlah"></span><span class="chip">Pilihan ganda</span><span class="chip">Tanpa batas waktu</span></div>
+  <div class="quote" id="b-narasi"></div>
+  <div id="b-mat-wrap" class="hidden"><p><b>Pelajari dulu materi ini:</b></p><div id="b-mat"></div></div>
+  <p style="margin-top:10px"><b>Sebelum mulai:</b> kerjakan dengan jujur tanpa membuka modul, lalu baca pembahasan setiap soal. Skor akhir muncul di akhir.</p>
+  <button class="primary" onclick="startExam()">Mulai ujian</button>
+  <button style="margin-top:8px;width:100%;text-align:center" onclick="show('setup')">Ganti soal atau materi</button>
+</section>
+
+<!-- 4. UJIAN -->
+<section id="game" class="screen hidden">
+  <div id="progress"></div>
+  <div class="question" id="question"></div>
+  <div class="options" id="options"></div>
+  <div id="explanation-box" class="explanation hidden"></div>
+  <button class="primary hidden" id="next-btn" onclick="loadNextQuestion()">Lanjut →</button>
+</section>
+
+<!-- 5. HASIL -->
+<section id="result" class="screen hidden" style="text-align:center">
+  <h2>Hasil Ujian</h2>
+  <div class="small" style="font-weight:bold;letter-spacing:1px">SKOR AKHIR</div>
+  <div id="final-score-val" class="bold-score">0</div>
+  <div id="predikat" class="keterangan"></div>
+  <div id="motivasi" class="motivasi-lucu"></div>
+  <button class="primary" style="background:#334155" onclick="resetUjian()">Ulangi ujian</button>
+  <button class="primary green" onclick="downloadThisHTML()">💾 Simpan hasil & data kuis (.html)</button>
+</section>
+</div>
+
+<script>
+let quizData = /*D*/[]/*DE*/;
+let quizTema = /*T*/null/*TE*/;
+let tema = {judul:'',narasi:'',links:[],files:[]};
+let currentQuestion = 0, score = 0, answered = false;
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('hidden', s.id !== id));
+  window.scrollTo(0,0);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (quizTema) tema = quizTema;
+  fillTemaFields(); renderMaterials();
+  if (quizData.length) { setSoalStatus(); renderBrief(); show('brief'); } else show('intro');
+});
+
+/* ---------- Template Excel ---------- */
+function downloadTemplate(){
+  if (typeof XLSX === 'undefined'){ alert('Pustaka Excel belum termuat. Periksa koneksi internet lalu coba lagi.'); return; }
+  const soal = [
+    ['Pertanyaan','A','B','C','D','Jawaban Benar','Penjelasan'],
+    ['Asas legalitas dalam hukum pidana dikenal dengan ungkapan...','Nullum delictum nulla poena sine praevia lege poenali','Actus non facit reum nisi mens sit rea','Pacta sunt servanda','Lex specialis derogat legi generali','a','Tidak ada perbuatan yang dapat dipidana tanpa aturan pidana yang sudah ada sebelumnya (Pasal 1 ayat 1 KUHP).'],
+    ['Asas pacta sunt servanda berarti...','Perjanjian batal demi hukum','Perjanjian mengikat para pihak sebagai undang-undang','Perjanjian hanya berlaku lisan','Perjanjian dapat diubah sepihak','b','Perjanjian yang dibuat secara sah berlaku sebagai undang-undang bagi pembuatnya (Pasal 1338 KUHPerdata).']
+  ];
+  const tm = [
+    ['Kolom','Isi'],
+    ['Judul Tema','Contoh: Hukum Pidana - Asas Legalitas'],
+    ['Narasi Pengantar','Contoh: Pelajari Modul 1 tentang asas-asas hukum pidana sebelum mengerjakan.'],
+    ['Link Referensi 1',''],['Link Referensi 2','']
+  ];
+  const pt = [
+    ['Petunjuk pengisian'],
+    ['1. Sheet "Soal": satu baris = satu soal. Hapus dua baris contoh sebelum mengisi.'],
+    ['2. Kolom "Jawaban Benar" diisi huruf a, b, c, atau d.'],
+    ['3. Kolom C dan D boleh kosong jika soal hanya punya dua atau tiga pilihan.'],
+    ['4. Sheet "Tema" (opsional): isi judul, narasi pengantar, dan tautan materi.'],
+    ['5. Jangan mengubah nama kolom di baris pertama.'],
+    ['6. Simpan berkas, lalu unggah di halaman "Siapkan latihan".']
+  ];
+  const wb = XLSX.utils.book_new();
+  const s1 = XLSX.utils.aoa_to_sheet(soal); s1['!cols'] = [{wch:50},{wch:32},{wch:32},{wch:32},{wch:32},{wch:14},{wch:60}];
+  const s2 = XLSX.utils.aoa_to_sheet(tm); s2['!cols'] = [{wch:20},{wch:80}];
+  const s3 = XLSX.utils.aoa_to_sheet(pt); s3['!cols'] = [{wch:90}];
+  XLSX.utils.book_append_sheet(wb, s1, 'Soal');
+  XLSX.utils.book_append_sheet(wb, s2, 'Tema');
+  XLSX.utils.book_append_sheet(wb, s3, 'Petunjuk');
+  XLSX.writeFile(wb, 'Template_Soal_Ujian_UT.xlsx');
+}
+
+/* ---------- Unggah soal ---------- */
+function setSoalStatus(msg, bad){
+  const el = $('soal-status');
+  if (msg) { el.textContent = msg; el.className = 'status ' + (bad ? 'err' : 'ok'); }
+  else if (quizData.length) { el.textContent = '✔ ' + quizData.length + ' soal siap dikerjakan.'; el.className = 'status ok'; }
+  $('to-brief').disabled = !quizData.length;
+}
+
+$('fileUploader').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const wb = XLSX.read(new Uint8Array(ev.target.result), {type:'array'});
+      const name = wb.SheetNames.find(n => n.toLowerCase() === 'soal') || wb.SheetNames[0];
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[name]);
+      const parsed = rows.map(item => {
+        const g = names => { for (const n of names) if (item[n] !== undefined && item[n] !== '') return item[n]; return ''; };
+        return {
+          q: String(g(['Pertanyaan','question','Soal'])),
+          a: String(g(['A','a'])), b: String(g(['B','b'])), c: String(g(['C','c'])), d: String(g(['D','d'])),
+          correct: String(g(['Jawaban Benar','Jawaban','correct','Kunci'])).toLowerCase().trim().charAt(0),
+          exp: String(g(['Penjelasan','pembahasan','explanation'])) || 'Lihat modul hukum.'
+        };
+      }).filter(x => x.q && x.a && x.b && 'abcd'.includes(x.correct || '-'));
+      if (!parsed.length) { quizData = []; setSoalStatus('Tidak ada soal valid. Pastikan kolom Pertanyaan, A, B, dan Jawaban Benar terisi.', true); return; }
+      quizData = parsed;
+      const ts = wb.SheetNames.find(n => n.toLowerCase() === 'tema');
+      if (ts) {
+        XLSX.utils.sheet_to_json(wb.Sheets[ts], {header:1}).forEach(r => {
+          const k = String(r[0] || '').toLowerCase(), v = String(r[1] || '').trim();
+          if (!v || v.startsWith('Contoh:')) return;
+          if (k.startsWith('judul')) tema.judul = v;
+          else if (k.startsWith('narasi')) tema.narasi = v;
+          else if (k.startsWith('link')) addLinkValue(v);
+        });
+        fillTemaFields(); renderMaterials();
+      }
+      setSoalStatus();
+    } catch (err) { quizData = []; setSoalStatus('Berkas tidak bisa dibaca. Gunakan format .xlsx atau .xls.', true); }
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+/* ---------- Tema & materi ---------- */
+function fillTemaFields(){ $('tema-judul').value = tema.judul || ''; $('tema-narasi').value = tema.narasi || ''; }
+function addLinkValue(v){
+  if (!/^https?:\/\//i.test(v)) v = 'https://' + v;
+  if (!tema.links.includes(v)) tema.links.push(v);
+}
+function addLink(){
+  const v = $('link-input').value.trim(); if (!v) return;
+  addLinkValue(v); $('link-input').value = ''; renderMaterials();
+}
+$('matUploader').addEventListener('change', e => {
+  const st = $('mat-status'); st.textContent = ''; st.className = 'status';
+  [...e.target.files].forEach(f => {
+    if (f.size > 4*1024*1024) { st.textContent = f.name + ' lebih dari 4 MB, tidak ditambahkan. Gunakan tautan untuk berkas besar.'; st.className = 'status err'; return; }
+    const r = new FileReader();
+    r.onload = () => { tema.files.push({name:f.name, data:r.result}); renderMaterials(); };
+    r.readAsDataURL(f);
+  });
+  e.target.value = '';
+});
+function renderMaterials(){
+  $('mat-list').innerHTML =
+    tema.links.map((l,i) => `<div class="mat"><span>🔗 ${esc(l)}</span><button onclick="tema.links.splice(${i},1);renderMaterials()">Hapus</button></div>`).join('') +
+    tema.files.map((f,i) => `<div class="mat"><span>📎 ${esc(f.name)}</span><button onclick="tema.files.splice(${i},1);renderMaterials()">Hapus</button></div>`).join('');
+}
+function openFile(i){
+  const f = tema.files[i], p = f.data.split(','), mime = p[0].match(/:(.*?);/)[1], bin = atob(p[1]);
+  const arr = new Uint8Array(bin.length); for (let k = 0; k < bin.length; k++) arr[k] = bin.charCodeAt(k);
+  const url = URL.createObjectURL(new Blob([arr], {type:mime}));
+  const w = window.open(url, '_blank');
+  if (!w) { const a = document.createElement('a'); a.href = url; a.download = f.name; a.click(); }
+}
+
+/* ---------- Narasi sebelum ujian ---------- */
+function toBrief(){
+  tema.judul = $('tema-judul').value.trim();
+  tema.narasi = $('tema-narasi').value.trim();
+  renderBrief(); show('brief');
+}
+function renderBrief(){
+  $('b-judul').textContent = tema.judul || 'Latihan Mandiri Hukum';
+  $('b-jumlah').textContent = quizData.length + ' soal';
+  $('b-narasi').textContent = tema.narasi || 'Latihan ini mengukur pemahamanmu terhadap materi hukum yang sudah dipelajari. Bacalah tiap soal dengan teliti, pilih jawaban terbaik, lalu pelajari pembahasannya.';
+  const items = tema.links.map(l => `<div class="mat"><span>🔗 ${esc(l)}</span><a class="btn" href="${esc(l)}" target="_blank" rel="noopener noreferrer">Buka</a></div>`)
+    .concat(tema.files.map((f,i) => `<div class="mat"><span>📎 ${esc(f.name)}</span><button onclick="openFile(${i})">Buka</button></div>`));
+  $('b-mat').innerHTML = items.join('');
+  $('b-mat-wrap').classList.toggle('hidden', !items.length);
+}
+function startExam(){ currentQuestion = 0; score = 0; show('game'); renderQuestion(); }
+
+/* ---------- Simpan HTML ---------- */
+function downloadThisHTML(){
+  const j = v => JSON.stringify(v).replace(/</g, '\\u003c');
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(new RegExp('/\\*D\\*/[\\s\\S]*?/\\*DE\\*/'), () => '/*' + 'D*/' + j(quizData) + '/*' + 'DE*/');
+  html = html.replace(new RegExp('/\\*T\\*/[\\s\\S]*?/\\*TE\\*/'), () => '/*' + 'T*/' + j(tema) + '/*' + 'TE*/');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([html], {type:'text/html;charset=utf-8'}));
+  a.download = 'Ujian_Mandiri_Prodi_Hukum_UT.html';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+function resetUjian(){ if (quizData.length) { renderBrief(); show('brief'); } else location.reload(); }
+
+/* ---------- Ujian ---------- */
+function renderQuestion(){
+  answered = false;
+  $('next-btn').classList.add('hidden'); $('explanation-box').classList.add('hidden');
+  const d = quizData[currentQuestion];
+  $('progress').innerText = `PROGRES: ${currentQuestion + 1} / ${quizData.length}`;
+  $('question').innerText = d.q;
+  const area = $('options'); area.innerHTML = '';
+  ['a','b','c','d'].forEach(ch => {
+    if (!d[ch]) return;
+    const btn = document.createElement('button');
+    btn.dataset.choice = ch;
+    btn.innerHTML = `<b>${ch.toUpperCase()}.</b> ${esc(d[ch])}`;
+    btn.onclick = () => checkAnswer(ch, btn);
+    area.appendChild(btn);
+  });
+}
+function checkAnswer(choice, btn){
+  if (answered) return; answered = true;
+  const d = quizData[currentQuestion];
+  if (choice === d.correct) { score++; btn.classList.add('correct-highlight'); }
+  else {
+    btn.classList.add('incorrect-highlight');
+    document.querySelectorAll('.options button').forEach(b => { if (b.dataset.choice === d.correct) b.classList.add('correct-highlight'); });
+  }
+  $('explanation-box').innerHTML = `<b>PEMBAHASAN:</b> ${esc(d.exp)}`;
+  $('explanation-box').classList.remove('hidden');
+  $('next-btn').classList.remove('hidden');
+  document.querySelectorAll('.options button').forEach(b => b.disabled = true);
+}
+function loadNextQuestion(){
+  currentQuestion++;
+  if (currentQuestion < quizData.length) renderQuestion(); else showResult();
+}
+function showResult(){
+  show('result');
+  const finalScore = Math.round((score / quizData.length) * 100);
+  $('final-score-val').innerText = finalScore;
+  const pred = $('predikat'), mot = $('motivasi');
+  if (finalScore >= 80) {
+    pred.innerHTML = `PINTAR <span class="percent-info">80-100%</span>`; pred.className = "keterangan pintar";
+    mot.innerText = "Wih, Baik Banget! Mahasiswa UT emang beda, spek dewa! Belajar mandiri aja dapet segini, apalagi kalau modul tebelnya beneran dibaca, bukan cuma dijadikan bantal tidur atau ganjalan pintu. Siap-siap dapet A, IPK auto meluncur ke langit!";
+  } else if (finalScore >= 60) {
+    pred.innerHTML = `SEDANG <span class="percent-info">60-79%</span>`; pred.className = "keterangan sedang";
+    mot.innerText = "Cukup lah ya! Skor segini udah aman buat napas, tapi tipis-tipis menyerempet bahaya. Mahasiswa UT itu tangguh, tapi mending modulnya dibaca lagi ya, jangan cuma dipajang di rak biar estetik. Daripada nyesek pas liat nilai akhir bikin jantungan!";
+  } else {
+    pred.innerHTML = `KURANG <span class="percent-info">&lt; 60%</span>`; pred.className = "keterangan bodoh";
+    mot.innerText = "Waduh Kurang Nih! Mahasiswa UT dilarang menyerah, tapi dilarang santai juga! Ini pasti modulnya baru dibuka pas kuis dimulai, atau malah cuma numpang lewat di mimpi? Tenang, belum kiamat kok, masih ada waktu buat bertaubat dan peluk modul sebelum UAS beneran!";
+  }
+}
+</script>
+</body>
+</html>
